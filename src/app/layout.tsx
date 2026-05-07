@@ -8,8 +8,8 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
-  title: "IBKR Grid Console",
-  description: "Open-source frontend for an IBKR grid trading dashboard",
+  title: "Trader · IBKR Grid",
+  description: "Live grid trading dashboard",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

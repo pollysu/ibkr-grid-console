@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Settings2, Sparkles } from "lucide-react";
+import { Activity, LayoutDashboard, Settings2, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard, hint: "Fills, orders, and realized PnL" },
-  { href: "/symbols", label: "Symbols", icon: Settings2, hint: "Grid parameters" },
+  { href: "/", label: "Dashboard", icon: LayoutDashboard, hint: "Live PnL & Activity" },
+  { href: "/symbols", label: "Symbols", icon: Settings2, hint: "Grid Configuration" },
+  { href: "/bot", label: "Bot Control", icon: Activity, hint: "Start, Stop, Logs" },
 ];
 
 export function Sidebar() {
@@ -19,9 +20,9 @@ export function Sidebar() {
           <Sparkles className="h-4 w-4" />
         </div>
         <div>
-          <div className="text-[15px] font-bold tracking-tight">IBKR Grid Console</div>
+          <div className="text-[15px] font-bold tracking-tight">Trader</div>
           <div className="text-[11px] text-[var(--muted)] uppercase tracking-[0.08em]">
-            open-source frontend
+            ibkr grid · live
           </div>
         </div>
       </div>
@@ -50,10 +51,10 @@ export function Sidebar() {
       </nav>
       <div className="mt-auto p-4 border-t">
         <div className="text-[10px] uppercase tracking-[0.1em] text-[var(--muted)]">
-          Release
+          Design system
         </div>
         <div className="text-[12px] text-foreground mt-1">
-          Public repository build
+          Coinbase tokens · v2 frontend
         </div>
       </div>
     </aside>

@@ -16,6 +16,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SymbolForm } from "@/components/symbols/symbol-form";
@@ -27,7 +38,6 @@ export default function SymbolsPage() {
   const [list, setList] = useState<SymbolConfig[]>([]);
   const [active, setActive] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [newSym, setNewSym] = useState("");
   const [cloneTo, setCloneTo] = useState("");
 
@@ -44,20 +54,17 @@ export default function SymbolsPage() {
           if (current && xs.find((x) => x.symbol === current)) return current;
           return xs[0].symbol;
         });
-        setError(null);
       } catch (e) {
         console.error(e);
         if (!alive) return;
         setList([]);
         setActive(null);
-        setError("无法加载 symbol 配置，请确认后端 API 已启动。");
       } finally {
         if (alive) setLoading(false);
       }
     };
 
     load();
-
     return () => {
       alive = false;
     };
@@ -96,7 +103,6 @@ export default function SymbolsPage() {
 
   const onDelete = async () => {
     if (!active) return;
-    if (!confirm(`删除标的 ${active}？`)) return;
     try {
       const out = await api.deleteSymbol(active);
       setList(out);
@@ -109,14 +115,9 @@ export default function SymbolsPage() {
 
   return (
     <>
-      <Topbar title="Symbols" subtitle="管理每个标的的网格参数。" />
+      <Topbar title="Symbols" subtitle="网格参数 · 实时同步至 config.yaml" />
       <div className="px-6 py-6 grid grid-cols-12 gap-6">
         <div className="col-span-12 lg:col-span-3 space-y-4">
-          {error && (
-            <div className="rounded-[var(--radius-md)] border border-dashed px-4 py-3 text-sm text-[var(--muted)]">
-              {error}
-            </div>
-          )}
           <Card>
             <CardHeader className="flex-row items-center justify-between">
               <CardTitle>已配置 ({list.length})</CardTitle>
@@ -131,7 +132,7 @@ export default function SymbolsPage() {
                   <DialogHeader>
                     <DialogTitle>新增标的</DialogTitle>
                     <DialogDescription>
-                      使用默认网格参数创建一份新配置。
+                      会用默认网格参数创建一份配置，保存后立即写入 config.yaml。
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-2">
@@ -202,10 +203,32 @@ export default function SymbolsPage() {
                     </Button>
                   </div>
                 </div>
-                <Button size="sm" variant="danger" onClick={onDelete} className="w-full">
-                  <Trash2 className="h-4 w-4" />
-                  删除 {current.symbol}
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button size="sm" variant="danger" className="w-full">
+                      <Trash2 className="h-4 w-4" />
+                      删除 {current.symbol}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>删除标的 {current.symbol}？</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        此操作会立即写入 config.yaml，已挂出的订单不会自动撤销，重启 bot 后才会生效。
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel asChild>
+                        <Button variant="secondary">取消</Button>
+                      </AlertDialogCancel>
+                      <AlertDialogAction asChild>
+                        <Button variant="danger" onClick={onDelete}>
+                          确认删除
+                        </Button>
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </CardContent>
             </Card>
           )}
@@ -213,7 +236,7 @@ export default function SymbolsPage() {
 
         <div className="col-span-12 lg:col-span-9">
           {current ? (
-            <SymbolForm symbol={current} onSaved={(out) => setList(out)} />
+            <SymbolForm key={current.symbol} symbol={current} onSaved={(out) => setList(out)} />
           ) : (
             <Card>
               <CardContent className="py-16 text-center text-sm text-[var(--muted)]">

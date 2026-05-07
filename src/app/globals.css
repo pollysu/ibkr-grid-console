@@ -1,6 +1,13 @@
 @import "tailwindcss";
 
-/* Design tokens for a clean blue-on-white trading console UI. */
+/* ---------- Coinbase-inspired design tokens ----------
+ * Source: awesome-design-md/coinbase/DESIGN.md
+ * - Brand: Coinbase Blue #0052ff
+ * - Hover Blue #578bfa
+ * - Near Black #0a0b0d  | Cool Gray #eef0f3
+ * - Dark Card #282b31  | Border #5b616e@20%
+ * Fonts: CoinbaseDisplay/Sans/Text are proprietary -> Inter substitute.
+ * ---------------------------------------------------- */
 :root {
   /* surfaces */
   --background: #ffffff;
@@ -24,7 +31,7 @@
   --border: rgba(91, 97, 110, 0.2);
   --border-strong: rgba(91, 97, 110, 0.4);
 
-  /* radii */
+  /* radii (Coinbase scale) */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
@@ -90,7 +97,7 @@ body {
   background: rgba(91, 97, 110, 0.45);
 }
 
-/* focus ring */
+/* focus ring (Coinbase: 2px solid black) */
 :focus-visible {
   outline: 2px solid var(--foreground);
   outline-offset: 2px;

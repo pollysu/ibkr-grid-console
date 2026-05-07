@@ -2,7 +2,7 @@
 import { Badge } from "@/components/ui/badge";
 import { DataTable, type Column, type RowTone } from "@/components/ui/data-table";
 import type { FillRow } from "@/lib/api";
-import { fmtMoney, fmtNum, fmtTimeBJ, pctClass } from "@/lib/fmt";
+import { estimateCommissionUsd, fmtMoney, fmtNum, fmtTimeBJ, pctClass } from "@/lib/fmt";
 import { cn } from "@/lib/utils";
 
 const cols: Column<FillRow>[] = [
@@ -36,6 +36,28 @@ const cols: Column<FillRow>[] = [
         {r.profit_usd == null ? "—" : fmtMoney(r.profit_usd, { sign: true })}
       </span>
     ),
+  },
+  {
+    key: "commission_est",
+    header: "估算手续费",
+    align: "right",
+    cell: (r) => {
+      const c = estimateCommissionUsd(r.qty, r.price);
+      return <span className="text-[var(--muted)] tabular">{fmtMoney(-c)}</span>;
+    },
+  },
+  {
+    key: "net_pnl_est",
+    header: "净盈亏 (估)",
+    align: "right",
+    cell: (r) => {
+      if (r.profit_usd == null) return "—";
+      const c = estimateCommissionUsd(r.qty, r.price);
+      const net = Number(r.profit_usd) - c;
+      return (
+        <span className={cn("font-semibold", pctClass(net))}>{fmtMoney(net, { sign: true })}</span>
+      );
+    },
   },
   {
     key: "order_ref",

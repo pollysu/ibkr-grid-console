@@ -1,4 +1,38 @@
-/* Typed API client for the public grid-console API surface. */
+/* Typed API client for the Trader API. All calls are proxied via Next rewrites. */
+
+export type TradingWindow = {
+  enabled: boolean;
+  timezone: string;
+  start: string;
+  end: string;
+  is_open: boolean;
+};
+
+export type IbCfg = {
+  host: string;
+  port: number;
+  client_id: number;
+  market_data_type: string;
+};
+
+export type ExecCfg = {
+  poll_interval_sec: number;
+  tif: string;
+  outside_rth: boolean;
+  resume_existing_orders: boolean;
+  reconcile_on_start_lookback_hours: number;
+};
+
+export type SystemState = {
+  now_utc: string;
+  now_local: string;
+  trading_window: TradingWindow;
+  bot: { pid: number | null; running: boolean };
+  ib: IbCfg;
+  execution: ExecCfg;
+  counts: { symbols: number; fills_csv_bytes: number; orders_csv_bytes: number };
+  paths: { config: string; state_dir: string };
+};
 
 export type SymbolGrid = {
   type: "discrete_pct" | "pine_grid" | "geometric";
@@ -100,6 +134,7 @@ async function jfetch<T>(input: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  state: () => jfetch<SystemState>("/state"),
   symbols: () => jfetch<SymbolConfig[]>("/symbols"),
   addSymbol: (symbol: string) =>
     jfetch<SymbolConfig[]>("/symbols", { method: "POST", body: JSON.stringify({ symbol }) }),
@@ -119,4 +154,9 @@ export const api = {
     jfetch<FillsResponse>(`/fills?limit=${limit}${symbol ? `&symbol=${encodeURIComponent(symbol)}` : ""}`),
   orders: (symbol?: string, limit = 200) =>
     jfetch<{ rows: OrderRow[] }>(`/orders?limit=${limit}${symbol ? `&symbol=${encodeURIComponent(symbol)}` : ""}`),
+  botStatus: () => jfetch<{ pid: number | null; running: boolean }>("/bot/status"),
+  botStart: () => jfetch<{ started: boolean; pid: number }>("/bot/start", { method: "POST" }),
+  botStop: () => jfetch<{ stopped: boolean }>("/bot/stop", { method: "POST" }),
+  botLog: (bytes = 16000) => jfetch<{ text: string }>(`/bot/log?bytes=${bytes}`),
+  botLogClear: () => jfetch<{ cleared: boolean }>("/bot/log/clear", { method: "POST" }),
 };
